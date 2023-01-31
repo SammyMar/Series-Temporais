@@ -1,0 +1,42 @@
+---
+title: "Anlise Serie v001"
+author: "Samuel Martins de Medeiros"
+date: "2022-11-21"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Importação do banco de dados
+
+Banco selecionado para o trabalho foi o dados3.csv, primeiramente importação e ordenação por data para transformar o conjunto em classe Time-Series, feita de maneira simples, seguida por uma verificação do plot
+
+```{r}
+library(readr)
+serie <- read_delim("dados3.csv", delim = ";", 
+    escape_double = FALSE, col_types = cols(data = col_date(format = "%d/%m/%Y")), 
+    trim_ws = TRUE)
+attach(serie)
+serie <- serie[order(data),]
+seriev <- ts(serie$valor)
+par(mfrow = c(1,2))
+itsmr::plota(seriev)
+```
+
+De primeira pelo grafico do ACF, por mais q ele nao exista já q a série não é estacionária, podemos identificar uma tendência em virtude do decaimento do gráfico ACF. Proseguindo para os testes unitarios
+
+```{r}
+seried <- seriev |> diff()
+seried |> itsmr::plota()
+  
+```
+
+```{r}
+seriev |> forecast::Arima(
+  order = c(1,1,1) , seasonal = c(0,2,2)) |> residuals()|> 
+  forecast::ggtsdisplay()
+
+```
+
