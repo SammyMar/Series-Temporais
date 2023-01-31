@@ -13,7 +13,7 @@ dados <- read.csv("dados7.csv", dec = ",")
 dados2 <- ts(dados$x)
 
 treino <- head(dados2, (length(dados2) - 10))
-teste <- tail(dados2, 10) 
+teste <- tail(dados2, 10)
 
 plot.ts(treino)
 acf(treino)
@@ -38,19 +38,19 @@ eacf(treino)
 
 # Modelos
 
-model1 <- stats::arima(treino, 
+model1 <- stats::arima(treino,
                        order = c(4,1,0),
                        seasonal = list(order = c(0,1,0),
                                        period = 12))
 lmtest::coeftest(model1)
 
-model2 <- stats::arima(treino, 
+model2 <- stats::arima(treino,
                        order = c(3,1,0),
                        seasonal = list(order = c(0,1,0),
                                        period = 12))
 lmtest::coeftest(model2)
 
-model3 <- stats::arima(treino, 
+model3 <- stats::arima(treino,
                        order = c(2,1,0),
                        seasonal = list(order = c(0,1,0),
                                        period = 12))
@@ -64,8 +64,8 @@ AIC(model3)
 
 # Diagnósticos
 tsdiag(model1)
-tsdiag(model2) 
-tsdiag(model3) 
+tsdiag(model2)
+tsdiag(model3)
 
 car::qqPlot(model3$res)
 cpgram(model1$res)
@@ -79,25 +79,25 @@ forecast::accuracy(teste, as.numeric(forecast(model1, h = 10)$mean))
 
 
 # Funções de atualização de previsões (SARIMA)
-error_update1 <- function(data, 
+error_update1 <- function(data,
                           orders,
-                          coefsig){ 
-  length_test <- nrow(as.data.frame(teste)) 
-  # training data base size 
-  length_training <- nrow(as.data.frame(treino)) 
-  # complete serie 
+                          coefsig){
+  length_test <- nrow(as.data.frame(teste))
+  # training data base size
+  length_training <- nrow(as.data.frame(treino))
+  # complete serie
   error <- matrix(NA, nrow = length_test, ncol = 1)
   prev <- matrix(NA, nrow = length_test, ncol = 1)
   for (i in 1:length_test){
-    model <- stats::arima(data[1:length_training + i - 1], 
+    model <- stats::arima(data[1:length_training + i - 1],
                           order = orders,
                           seasonal = list(order = c(0,1,0),
                                           period = 12),
                           fixed = coefsig,
-                          method = "ML") 
-    
+                          method = "ML")
+
     prediction <- as.data.frame(forecast(model, h = 1, boot = TRUE))
-    error[i] <-  (data[length_training + i] - 
+    error[i] <-  (data[length_training + i] -
                     prediction$`Point Forecast`)
     prev[i] <- prediction$`Point Forecast`
   }
@@ -190,23 +190,23 @@ forecast::accuracy(teste, as.numeric(forecast(model11, h = 10)$mean))
 
 
 # Funções de atualização de previsões (AR)
-error_update2 <- function(data, 
+error_update2 <- function(data,
                          orders,
-                         coefsig){ 
-  length_test <- nrow(as.data.frame(teste)) 
-  # training data base size 
-  length_training <- nrow(as.data.frame(treino)) 
-  # complete serie 
+                         coefsig){
+  length_test <- nrow(as.data.frame(teste))
+  # training data base size
+  length_training <- nrow(as.data.frame(treino))
+  # complete serie
   error <- matrix(NA, nrow = length_test, ncol = 1)
   prev <- matrix(NA, nrow = length_test, ncol = 1)
   for (i in 1:length_test){
-    model <- stats::arima(data[1:length_training + i - 1], 
+    model <- stats::arima(data[1:length_training + i - 1],
                           order = orders,
                           fixed = coefsig,
-                          method = "ML") 
-    
+                          method = "ML")
+
     prediction <- as.data.frame(forecast(model, h = 1, boot = TRUE))
-    error[i] <-  (data[length_training + i] - 
+    error[i] <-  (data[length_training + i] -
                     prediction$`Point Forecast`)
     prev[i] <- prediction$`Point Forecast`
   }
@@ -219,12 +219,12 @@ error_update2 <- function(data,
 model11prev <- error_update2(data = dados4,
                              orders = c(3, 0, 0),
                              coefsig = NULL)
- 
+
 # Plot previsões
 plot(as.numeric(teste2), type = "l")
 lines(unlist(model11prev[3]), col = "red")
 
-############################## MAPE ######################################## 
+############################## MAPE ########################################
 mean(abs((teste2 - unlist(model11prev[3]))/teste2)) * 100
 
 
@@ -237,7 +237,7 @@ mean(abs((teste2 - unlist(model11prev[3]))/teste2)) * 100
 ##################################### (a) Gerando um AR(3)
 
 simulaAR3 <- function(n, phi1, phi2, phi3, sd){
-  n2 <- round(n/10) # 10% 
+  n2 <- round(n/10) # 10%
   n <- n + n2 # soma os 10%
   x <-  rep(0,n) # vetor para os resultados
   e <- rnorm(n, mean = 0, sd = sd) # ruido branco
@@ -255,7 +255,7 @@ plot(y, type = "o")
 
 # Autocorrelação amostral
 autocorr <- function(x){ # x = serie, nl = quantos lags (nl < n)
-  n <- length(x)
+  n <- length(y)
   gammah <- rep(NA, n + 1)
   for(h in 0:(n-1)){
     aux <- 0
@@ -265,17 +265,17 @@ autocorr <- function(x){ # x = serie, nl = quantos lags (nl < n)
     if(h == 0){gammah[h+1] <- aux/n}else{gammah[h+1] <- aux/n}
   }
   rho <- (gammah/gammah[1])
-  return(list(rho = rho, 
+  return(list(rho = rho,
               acf =  gammah))
 }
 
-plot(autocorr(y, 50)$rho, 
+plot(autocorr(y)$rho,
      type = "h",
      xlab = "lag",
      ylab = "Autocorrelação",
      main = "Autocorrelação Amostral")
 abline(h = 0)
-abline(h = c(1, -1) * 1.96/sqrt(length(y)), 
+abline(h = c(1, -1) * 1.96/sqrt(length(y)),
        lty = 2,
        col = "blue")
 
@@ -291,17 +291,17 @@ autocorr2 <- function(x){ # x = serie, nl = quantos lags
     if(h == 0){gammah[h+1] <- aux/n}else{gammah[h+1] <- aux/n}
   }
   rho <- (gammah/gammah[1])
-  return(list(rho = rho, 
+  return(list(rho = rho,
               acf =  gammah))
 }
 
-plot(autocorr2(y, 50)$rho, 
+plot(autocorr2(y)$rho,
      type = "h",
      xlab = "lag",
      ylab = "Autocorrelação",
      main = "Autocorrelação Teórica")
 abline(h = 0)
-abline(h = c(1, -1) * 1.96/sqrt(length(y)), 
+abline(h = c(1, -1) * 1.96/sqrt(length(y)),
        lty = 2,
        col = "blue")
 
@@ -309,7 +309,7 @@ abline(h = c(1, -1) * 1.96/sqrt(length(y)),
 acf(y, lag.max = 50)
 
 
-######################## (c) Estimando parametros de um AR(3) com Yule-Walker 
+######################## (c) Estimando parametros de um AR(3) com Yule-Walker
 
 # phi1 = 0.3, phi2 = 0.1, phi3 = -0.5
 
@@ -320,8 +320,8 @@ yuleWalker <- function(y){ # y = serie
                  r[2], r[1], 1),
                  byrow = TRUE,
                  nrow = 3)
-  b <- matrix(c(r[1], r[2], r[3]), 
-              byrow = FALSE, 
+  b <- matrix(c(r[1], r[2], r[3]),
+              byrow = FALSE,
               nrow = 3)
   solution <- solve(mr, b)
   sigmahat <- autocorr(y)$acf[1] * (1 - sum(solution*r))
@@ -344,7 +344,7 @@ lgm <- function(k, yn){ # yn = tamanho da serie, n = numero de iterações
     phihat3[i] <- results$phihat[3]
     sigmahat[i] <- results$sigmahat[1]
   }
-  return(list(phihat1 = phihat1, 
+  return(list(phihat1 = phihat1,
               phihat2 = phihat2,
               phihat3 = phihat3,
               sigmahat = sigmahat))
@@ -374,8 +374,8 @@ lgm_m <- function(m, n, yn){ # yn = tamanho da serie, n = numero de iterações
     phihat3_mean[k] <- mean(phihat3)
     sigmahat_mean[k] <- mean(sigmahat)
   }
-  
-  return(list(phihat1_mean = phihat1_mean, 
+
+  return(list(phihat1_mean = phihat1_mean,
               phihat2_mean = phihat2_mean,
               phihat3_mean = phihat3_mean,
               sigmahat_mean = sigmahat_mean))
