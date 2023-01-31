@@ -4,7 +4,7 @@
 
 ####### QUESTAO 2 ################
 set.seed(3666)
-## A ##
+### A ###
 
 AR <- function(coefs, n){
     n <- n + (length(coefs))
@@ -20,7 +20,7 @@ n <- 100
 y <- AR(coefs,n)
 plot.ts(y)
 
-## B ##
+### B ###
 
 #AMOSTRAL ------
 #funcoes
@@ -80,3 +80,30 @@ ggplot(data=acfs.t[1:50,], aes(x=lag, y=acf)) +
   geom_hline(aes(yintercept = -cline), linetype = 2, color = 'darkblue') +
   ggtitle('Autocorrelação Teórica') + ylab('Autocorrelação') + xlab('Lags')
 pacf(y,lag.max = 50)
+
+### C ###
+logLik <- function(coefs, y) {
+  c1 <- coefs[1]
+  c2 <- coefs[2]
+  c3 <- coefs[3]
+  sigma2 <- coefs[4]
+  n <- length(y)
+  aux <- -n/2*log(2*pi*sigma2)
+  loglik <- 0
+  for (t in 4:n) {
+    loglik <-loglik + (y[t] - c1 * y[t-1] - c2 * y[t-2] - c3 * y[t-3])^2
+  }
+  loglik <- aux - loglik/(2*sigma2)
+  return(-loglik)
+}
+
+# Define os parâmetros iniciais
+coefs_iniciais <- c(runif(3,-1,-1), 1)
+y <- AR(c(.3,.1,-.5),10000)
+# Chama a função de otimização
+fit <- optim(coefs_iniciais, logLik, method = "BFGS", y = y)
+
+# Exibe os parâmetros otimizados
+fit$par
+
+
