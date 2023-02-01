@@ -1,10 +1,8 @@
 ########## PACOTES ##############
 #################################
-
-
-####### QUESTAO 2 ################
+#---------------------- QUESTAO 2 -----------------------------------
 set.seed(3666)
-### A ###
+########################## A ##############################################
 
 AR <- function(coefs, n){
     n <- n + (length(coefs))
@@ -20,7 +18,7 @@ n <- 100
 y <- AR(coefs,n)
 plot.ts(y)
 
-### B ###
+### B #####################################################################
 
 #AMOSTRAL ------
 #funcoes
@@ -81,7 +79,7 @@ ggplot(data=acfs.t[1:50,], aes(x=lag, y=acf)) +
   ggtitle('Autocorrelação Teórica') + ylab('Autocorrelação') + xlab('Lags')
 pacf(y,lag.max = 50)
 
-### C ###
+### C ######################################################################
 logLik <- function(coefs, y) {
   c1 <- coefs[1]
   c2 <- coefs[2]
@@ -107,3 +105,27 @@ fit <- optim(coefs_iniciais, logLik, method = "BFGS", y = y)
 fit$par
 
 
+### D #################################################################
+B <- 2000
+a1 <- vector()
+a2 <- vector()
+a3 <- vector()
+sigma2 <- vector()
+mean.y <- vector()
+n <- 500
+coefs <- c(.3,.1,-.5)
+for(b in 1:B){
+  y <- AR(coefs,n)
+  fit <- optim(c(1,1,1,1), logLik, method = 'BFGS', y =y)
+  a1[b] <- fit$par[1]
+  a2[b] <- fit$par[2]
+  a3[b] <- fit$par[3]
+  sigma2[b]<- fit$par[4]
+
+}
+estimativas <- data.frame(a1 = a1,
+                          a2 = a2,
+                          a3 = a3,
+                          sigma2 = sigma2)
+apply(estimativas,2,mean )
+apply(estimativas,2,var)
