@@ -1,0 +1,267 @@
+---
+title: "Análise fatorial"
+author: "Samuel Medeiros"
+output:
+  xaringan::moon_reader:
+    seal: false
+    lib_dir: libs
+    css: xaringan-themer.css
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+class: inverse, center, middle
+
+background-image: url(img/logo.png)
+background-position: 50% 15%
+background-size: 30%
+
+# <br><br> Modelos de representação GARCH e ARCH para modelagem de volatilidade
+
+### Samuel Martins de Medeiros
+### UFES
+
+---
+class: middle
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+
+knitr::opts_chunk$set(
+  fig.width=10, fig.height=10, fig.retina=3,
+  out.width = "100%",
+  cache = FALSE,
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+   hiline = TRUE
+ )
+```
+
+```{r xaringan-themer, include=FALSE, warning=FALSE}
+library(xaringanthemer)
+style_mono_accent(
+  base_color = "#0A1E3C",
+  code_highlight_color = "#00FFFF",
+  text_bold_color = "#32A0FF",
+  link_color = "#FAC80F",
+  text_font_google = google_font("Lato", "300", "300i"),
+  header_font_google = google_font("Ubuntu")
+)
+```
+
+### Introdução
+ + Séries de Retorno;
+
+ + ARCH (Autoregressive Conditional Heteroscedasticity) Engle (1982);
+ 
+ + GARCH (Generalized Autoregressive Conditional Heteroscedasticity)    Bollerslev (1986)
+  
+---
+class: middle
+
+### Séries Financeiras
+
+Seja $\{X_t\}$ uma série temporal financeira. Podendo essa ser o preço de uma ação no tempo $t$. Os retornos da série $\{X_t\}$ podem ser definidos como:
+  
+   + Retorno aritmético ou simplesmente contraste do preço:
+   
+    $y_t = \frac{x_t - x_{t-1}}{x_{t-1}}$
+   
+   + Log-retornos ou simplesmente retornos:
+    
+    $y_t = \log\frac{x_t}{x_{t-1}}$
+
+Para ambas as definições podemos que o sinal da variação implica no tipo de retornos, positivos ou negativos. Quanto maior a variação de $\{X_t\}$ maior a variação no retorno. Os retornos não dependem de unidades monetárias, são livres de escala.
+
+---
+class: middle
+### Vantagem do uso de log-retornos
+A representação log-retornos é matematicamente mais estável que a representação aritmética,
+pois preserva as propriedades da soma e da multiplicação. Onde podemos reescrever o retorno para $k$ dias como soma dos retornos passados.
+.center[
+ - Retorno para 1 dia
+ 
+       $y_t = log\frac{x_t}{x_{t-1}} = \nabla x_t$
+ 
+ - Retorno para 2 dias
+ 
+       $y_t^{(2)} = log\frac{x_t}{x_{t-2}} = \nabla x_t + \nabla x_{t-1}$
+ 
+ - Retorno para 3 dias 
+ 
+       $y_t^{(3)} = log\frac{x_t}{x_{t-3}} = \nabla x_t + \nabla x_{t-1} + \nabla x_{t-2}$
+       
+ - Caso geral
+ 
+      $y_t^{(k)} = \sum^{k-1}_{i=0}y_{t-i}$
+      
+]      
+---
+class: middle
+
+### Propriedades das séries financeiras
+
+- Média condicional igual a zero
+
+.center[
+
+$E_{t-1}[ y_t] = 0$
+
+]
+
+- Variância condicional dinãmica
+
+.center[
+
+$Var_{t-1}[y_t] = \sigma^2_t$
+
+]
+
+em que $\sigma_t^2$ é não constante e varia com o tempo. Por conta disso a série $\{Y_t\}$ costuma ser chamada de condicionalmente heterocedástica. O termo volatilidade surge da magnitude da variância condicional da série de retornos.
+
+- Os gráficos de ACF só mostram correlação significativa para $\{Y_t^2\}$, não para $\{Y_t\}$. Os modelos de volatilidade se baseiam no quadrado dos retornos para modelagem da volatilidade, uma vez que $E_{t-1}[y^2_t] = Var_{t-1}[y_t] = \sigma^2_t$;
+
+- _Clusters de volatilidade_, grandes retornos absolutos |y_t| tende a aparecer em grupos;
+
+- Curtoso superior a 3, indicando caldas mais pesadas que a normal. E assimetria a esquerda devido a discrepancia entre velocidade dos movimentos de alta e baixa no mercado.
+---
+class: inverse, middle
+
+## Modelos ARCH
+---
+class: middle
+### Modelos ARCH(p)
+
+Suponha  uma sequência de variáveis $\eta_t$ independentes identicamente distribuidas $E(\eta_t) = 0$ e variância unitária, e uma sequência de constantes $\phi_i \geq 0, i =1,\dots,p$ maiores que 0, podemos definir um processo com representação ARCH(p) como sendo
+
+.center[
+
+$y_t = \sigma_t\eta_t$
+
+$\sigma_t = \phi_0 + \sum^p_{i= 1}\phi_iy_{t-i}^2$
+
+]
+
+- Restrição de estacionariedade
+
+.center[
+
+$\sum^p_{i= 1}\phi_i < 1$
+
+]
+
+
+Também garante que $Var[y_t]>0$
+
+---
+class: middle
+
+### Propriedades - I
+
+Média Incondicional:
+
+.center[
+
+$E[y_t] = E[E_{t-1}[y_t]] = E[0] = 0$
+
+]
+
+Autocovariância
+
+.center[
+
+$Cov(y_t,y_{t+h}) = E[y_t \times y_{t+h}]$
+
+$= E[E_{t+h -1}[y_t\times y_{t+h}]]$
+
+$= E[y_tE_{t+h -1}[y_{t+h}]]= 0\quad \forall k\neq 0$
+
+]
+
+Autocovariância Incondicional
+
+.center[
+
+$Var[y_t] = E[y_t^2 ] = E[E_{t-1}[y_t^2]] = E[\sigma^2_t]$
+
+$=E[\phi_0 + \sum^p_{i= 1}\phi_iy_{t-i}^2]$
+
+$=\phi_0 + \sum^p_{i= 1}\phi_iE[y_{t-i}^2]$
+
+$=\phi_0 + \sum^p_{i= 1}\phi_iVar[y_{t-i}]$
+
+]
+---
+class: middle
+### Propriedades - II
+
+Supondo estacionariedade, segue que
+
+.center[
+
+$Var[y_t] = Var[y_{t-1}] = \dots = Var[y_{t-p}]$
+
+$Var[y_t] = \frac{\phi_0}{1 - \sum^p_{i=1}   \phi_i}$
+]
+
+Considerando as condições para estacionariedade, média constante e autocovariância dependente apenas da defasagem, a estacionariedade so é valida quando $\sum^p_{i= 1}\phi_i < 1$
+
+---
+class: inverse, middle
+
+## Modelos GARCH
+
+---
+### Modelos de representação GARCH(p,q)
+A principal diferença entre o modelo ARCH e o GARCH reside na sua capacidade de capturar a variação não constante na volatilidade dos retornos ao longo do tempo. Pode ser visto como uma generalização dos modelos ARCH. Considere novamente $\eta_t$, podemos definir o modelo como:
+
+.center[
+
+$y_t = \sigma^2_t \eta_t$
+
+$\sigma^2_t = Var_{t-h}(Y_t) = \omega + \sum^p_{i = 1}\alpha_iY_{t-i}^2 + \sum^q_{i = 1}\beta_i\sigma_{t-j}^2,\quad t \in Z$
+
+]
+
+Para que a variância condicional e a variância incondicional sejam não nulas positivas, as seguintes restrições são necessárias:
+
+.center[
+
+$\omega > 0$
+
+$\alpha_i \geq 0 \quad i = 1,\dots,p$
+
+$\beta_j \geq 0 \quad j =1,\dots,q$
+
+$\sum^p_{i = 1}\alpha_i + \sum^q_{i = 1}\beta_i < 1$
+
+]
+
+---
+class: middle
+
+### Propriedades
+
+Fazendo paralelo com modelos AR(p) e ARMA(p,q), os modelos GARCH(p,q) e ARCH(p) geralmente são mais parcimoniosos. 
+
+As mesmas propriedades de modelos ARCH(p) podem ser vistas em modelos GARCH(p,q).
+
+- Média zero
+
+- Sem autocorrelações
+
+- Distribuição leptocúrtica
+
+- Pode se mostrar que a variância incondicional é dada por
+
+.center[
+
+$Var[y_t] = \frac{\omega}{1 - \sum^p_{i = 1}\alpha_i + \sum^q_{i = 1}\beta_i}$
+
+]
+---
+class: inverse, middle
+
+### Obrigado.
+

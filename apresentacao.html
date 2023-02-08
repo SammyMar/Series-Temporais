@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Análise fatorial</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Samuel Medeiros" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+class: inverse, center, middle
+
+background-image: url(img/logo.png)
+background-position: 50% 15%
+background-size: 30%
+
+# &lt;br&gt;&lt;br&gt; Modelos de representação GARCH e ARCH para modelagem de volatilidade
+
+### Samuel Martins de Medeiros
+### UFES
+
+---
+class: middle
+
+
+
+
+### Introdução
+ + Séries de Retorno;
+
+ + ARCH (Autoregressive Conditional Heteroscedasticity) Engle (1982);
+ 
+ + GARCH (Generalized Autoregressive Conditional Heteroscedasticity)    Bollerslev (1986)
+  
+---
+class: middle
+
+### Séries Financeiras
+
+Seja `\(\{X_t\}\)` uma série temporal financeira. Podendo essa ser o preço de uma ação no tempo `\(t\)`. Os retornos da série `\(\{X_t\}\)` podem ser definidos como:
+  
+   + Retorno aritmético ou simplesmente contraste do preço:
+   
+    `\(y_t = \frac{x_t - x_{t-1}}{x_{t-1}}\)`
+   
+   + Log-retornos ou simplesmente retornos:
+    
+    `\(y_t = \log\frac{x_t}{x_{t-1}}\)`
+
+Para ambas as definições podemos que o sinal da variação implica no tipo de retornos, positivos ou negativos. Quanto maior a variação de `\(\{X_t\}\)` maior a variação no retorno. Os retornos não dependem de unidades monetárias, são livres de escala.
+
+---
+class: middle
+### Vantagem do uso de log-retornos
+A representação log-retornos é matematicamente mais estável que a representação aritmética,
+pois preserva as propriedades da soma e da multiplicação. Onde podemos reescrever o retorno para `\(k\)` dias como soma dos retornos passados.
+.center[
+ - Retorno para 1 dia
+ 
+       `\(y_t = log\frac{x_t}{x_{t-1}} = \nabla x_t\)`
+ 
+ - Retorno para 2 dias
+ 
+       `\(y_t^{(2)} = log\frac{x_t}{x_{t-2}} = \nabla x_t + \nabla x_{t-1}\)`
+ 
+ - Retorno para 3 dias 
+ 
+       `\(y_t^{(3)} = log\frac{x_t}{x_{t-3}} = \nabla x_t + \nabla x_{t-1} + \nabla x_{t-2}\)`
+       
+ - Caso geral
+ 
+      `\(y_t^{(k)} = \sum^{k-1}_{i=0}y_{t-i}\)`
+      
+]      
+---
+class: middle
+
+### Propriedades das séries financeiras
+
+- Média condicional igual a zero
+
+.center[
+
+`\(E_{t-1}[ y_t] = 0\)`
+
+]
+
+- Variância condicional dinãmica
+
+.center[
+
+`\(Var_{t-1}[y_t] = \sigma^2_t\)`
+
+]
+
+em que `\(\sigma_t^2\)` é não constante e varia com o tempo. Por conta disso a série `\(\{Y_t\}\)` costuma ser chamada de condicionalmente heterocedástica. O termo volatilidade surge da magnitude da variância condicional da série de retornos.
+
+- Os gráficos de ACF só mostram correlação significativa para `\(\{Y_t^2\}\)`, não para `\(\{Y_t\}\)`. Os modelos de volatilidade se baseiam no quadrado dos retornos para modelagem da volatilidade, uma vez que `\(E_{t-1}[y^2_t] = Var_{t-1}[y_t] = \sigma^2_t\)`;
+
+- _Clusters de volatilidade_, grandes retornos absolutos |y_t| tende a aparecer em grupos;
+
+- Curtoso superior a 3, indicando caldas mais pesadas que a normal. E assimetria a esquerda devido a discrepancia entre velocidade dos movimentos de alta e baixa no mercado.
+---
+class: inverse, middle
+
+## Modelos ARCH
+---
+class: middle
+### Modelos ARCH(p)
+
+Suponha  uma sequência de variáveis `\(\eta_t\)` independentes identicamente distribuidas `\(E(\eta_t) = 0\)` e variância unitária, e uma sequência de constantes `\(\phi_i \geq 0, i =1,\dots,p\)` maiores que 0, podemos definir um processo com representação ARCH(p) como sendo
+
+.center[
+
+`\(y_t = \sigma_t\eta_t\)`
+
+`\(\sigma_t = \phi_0 + \sum^p_{i= 1}\phi_iy_{t-i}^2\)`
+
+]
+
+- Restrição de estacionariedade
+
+.center[
+
+`\(\sum^p_{i= 1}\phi_i &lt; 1\)`
+
+]
+
+
+Também garante que `\(Var[y_t]&gt;0\)`
+
+---
+class: middle
+
+### Propriedades - I
+
+Média Incondicional:
+
+.center[
+
+`\(E[y_t] = E[E_{t-1}[y_t]] = E[0] = 0\)`
+
+]
+
+Autocovariância
+
+.center[
+
+`\(Cov(y_t,y_{t+h}) = E[y_t \times y_{t+h}]\)`
+
+`\(= E[E_{t+h -1}[y_t\times y_{t+h}]]\)`
+
+`\(= E[y_tE_{t+h -1}[y_{t+h}]]= 0\quad \forall k\neq 0\)`
+
+]
+
+Autocovariância Incondicional
+
+.center[
+
+`\(Var[y_t] = E[y_t^2 ] = E[E_{t-1}[y_t^2]] = E[\sigma^2_t]\)`
+
+`\(=E[\phi_0 + \sum^p_{i= 1}\phi_iy_{t-i}^2]\)`
+
+`\(=\phi_0 + \sum^p_{i= 1}\phi_iE[y_{t-i}^2]\)`
+
+`\(=\phi_0 + \sum^p_{i= 1}\phi_iVar[y_{t-i}]\)`
+
+]
+---
+class: middle
+### Propriedades - II
+
+Supondo estacionariedade, segue que
+
+.center[
+
+`\(Var[y_t] = Var[y_{t-1}] = \dots = Var[y_{t-p}]\)`
+
+`\(Var[y_t] = \frac{\phi_0}{1 - \sum^p_{i=1}   \phi_i}\)`
+]
+
+Considerando as condições para estacionariedade, média constante e autocovariância dependente apenas da defasagem, a estacionariedade so é valida quando `\(\sum^p_{i= 1}\phi_i &lt; 1\)`
+
+---
+class: inverse, middle
+
+## Modelos GARCH
+
+---
+### Modelos de representação GARCH(p,q)
+A principal diferença entre o modelo ARCH e o GARCH reside na sua capacidade de capturar a variação não constante na volatilidade dos retornos ao longo do tempo. Pode ser visto como uma generalização dos modelos ARCH. Considere novamente `\(\eta_t\)`, podemos definir o modelo como:
+
+.center[
+
+`\(y_t = \sigma^2_t \eta_t\)`
+
+`\(\sigma^2_t = Var_{t-h}(Y_t) = \omega + \sum^p_{i = 1}\alpha_iY_{t-i}^2 + \sum^q_{i = 1}\beta_i\sigma_{t-j}^2,\quad t \in Z\)`
+
+]
+
+Para que a variância condicional e a variância incondicional sejam não nulas positivas, as seguintes restrições são necessárias:
+
+.center[
+
+`\(\omega &gt; 0\)`
+
+`\(\alpha_i \geq 0 \quad i = 1,\dots,p\)`
+
+`\(\beta_j \geq 0 \quad j =1,\dots,q\)`
+
+`\(\sum^p_{i = 1}\alpha_i + \sum^q_{i = 1}\beta_i &lt; 1\)`
+
+]
+---
+class: inverse, middle
+
+### Obrigado.
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
