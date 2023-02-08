@@ -73,7 +73,17 @@ Seja $\{X_t\}$ uma série temporal financeira. Podendo essa ser o preço de uma 
     $y_t = \log\frac{x_t}{x_{t-1}}$
 
 Para ambas as definições podemos que o sinal da variação implica no tipo de retornos, positivos ou negativos. Quanto maior a variação de $\{X_t\}$ maior a variação no retorno. Os retornos não dependem de unidades monetárias, são livres de escala.
+---
+class: middle
+.center[
+```{r, echo=FALSE, out.width="60%", fig.cap="Série Petrobras."}
+knitr::include_graphics("IMG_SEMINARIO/PETR4plot.png")
+```
 
+```{r, echo=FALSE, out.width="55%", fig.cap="Série retornos."}
+knitr::include_graphics("IMG_SEMINARIO/return.png")
+```
+]
 ---
 class: middle
 ### Vantagem do uso de log-retornos
@@ -82,15 +92,15 @@ pois preserva as propriedades da soma e da multiplicação. Onde podemos reescre
 .center[
  - Retorno para 1 dia
  
-       $y_t = log\frac{x_t}{x_{t-1}} = \nabla x_t$
+       $y_t = log\frac{x_t}{x_{t-1}} = \nabla log x_t$
  
  - Retorno para 2 dias
  
-       $y_t^{(2)} = log\frac{x_t}{x_{t-2}} = \nabla x_t + \nabla x_{t-1}$
+       $y_t^{(2)} = log\frac{x_t}{x_{t-2}} = \nabla log x_t + \nabla log x_{t-1}$
  
  - Retorno para 3 dias 
  
-       $y_t^{(3)} = log\frac{x_t}{x_{t-3}} = \nabla x_t + \nabla x_{t-1} + \nabla x_{t-2}$
+       $y_t^{(3)} = log\frac{x_t}{x_{t-3}} = \nabla log  x_t + \nabla log x_{t-1} + \nabla log x_{t-2}$
        
  - Caso geral
  
@@ -100,7 +110,7 @@ pois preserva as propriedades da soma e da multiplicação. Onde podemos reescre
 ---
 class: middle
 
-### Propriedades das séries financeiras
+### Propriedades das séries de retorno
 
 - Média condicional igual a zero
 
@@ -110,7 +120,7 @@ $E_{t-1}[ y_t] = 0$
 
 ]
 
-- Variância condicional dinãmica
+- Variância condicional dinâmica
 
 .center[
 
@@ -133,13 +143,13 @@ class: inverse, middle
 class: middle
 ### Modelos ARCH(p)
 
-Suponha  uma sequência de variáveis $\eta_t$ independentes identicamente distribuidas $E(\eta_t) = 0$ e variância unitária, e uma sequência de constantes $\phi_i \geq 0, i =1,\dots,p$ maiores que 0, podemos definir um processo com representação ARCH(p) como sendo
+Suponha  uma sequência de variáveis $\eta_t$ independentes identicamente distribuidas $E(\eta_t) = 0$ e variância unitária, e uma sequência de constantes $\phi_i \geq 0, i =1,\dots,p$ maiores ou iguais que 0, e $\phi_0 >0$ podemos definir um processo com representação ARCH(p) como sendo
 
 .center[
 
 $y_t = \sigma_t\eta_t$
 
-$\sigma_t = \phi_0 + \sum^p_{i= 1}\phi_iy_{t-i}^2$
+$\sigma^2_t = \phi_0 + \sum^p_{i= 1}\phi_iy_{t-i}^2$
 
 ]
 
@@ -179,7 +189,7 @@ $= E[y_tE_{t+h -1}[y_{t+h}]]= 0\quad \forall k\neq 0$
 
 ]
 
-Autocovariância Incondicional
+Variância Incondicional
 
 .center[
 
@@ -218,7 +228,7 @@ A principal diferença entre o modelo ARCH e o GARCH reside na sua capacidade de
 
 .center[
 
-$y_t = \sigma^2_t \eta_t$
+$y_t = \sigma_t \eta_t$
 
 $\sigma^2_t = Var_{t-h}(Y_t) = \omega + \sum^p_{i = 1}\alpha_iY_{t-i}^2 + \sum^q_{i = 1}\beta_i\sigma_{t-j}^2,\quad t \in Z$
 
@@ -257,7 +267,7 @@ As mesmas propriedades de modelos ARCH(p) podem ser vistas em modelos GARCH(p,q)
 
 .center[
 
-$Var[y_t] = \frac{\omega}{1 - \sum^p_{i = 1}\alpha_i + \sum^q_{i = 1}\beta_i}$
+$Var[y_t] = \frac{\omega}{1 - \sum^p_{i = 1}\alpha_i - \sum^q_{i = 1}\beta_i}$
 
 ]
 ---
